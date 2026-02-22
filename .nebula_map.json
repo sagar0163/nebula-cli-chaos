@@ -6,6 +6,10 @@
       "path": ".nebula-project-id"
     },
     {
+      "name": ".nebula_map.json",
+      "path": ".nebula_map.json"
+    },
+    {
       "name": "LICENSE",
       "path": "LICENSE"
     },
@@ -24,6 +28,10 @@
     {
       "name": "chaos-monkey.py",
       "path": "chaos-monkey.py"
+    },
+    {
+      "name": "chaos-report-1771768074904.json",
+      "path": "chaos-report-1771768074904.json"
     },
     {
       "name": "chaos-runner.js",

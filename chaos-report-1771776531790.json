@@ -1,0 +1,43 @@
+{
+  "timestamp": "2026-02-22T16:08:51.789Z",
+  "command": "nebula",
+  "summary": {
+    "total": 5,
+    "passed": 5,
+    "failed": 0,
+    "passRate": "100.0%",
+    "durationMs": 3732
+  },
+  "results": [
+    {
+      "name": "special_chars",
+      "passed": true,
+      "output": "",
+      "error": null
+    },
+    {
+      "name": "unicode_injection",
+      "passed": true,
+      "output": "",
+      "error": null
+    },
+    {
+      "name": "invalid_args",
+      "passed": true,
+      "output": "Error: Unknown flag '--invalid-arg-xyz'\nRun 'nebula --help' for available options.\n",
+      "error": null
+    },
+    {
+      "name": "command_injection",
+      "passed": true,
+      "output": "All payloads blocked",
+      "error": null
+    },
+    {
+      "name": "redos_pattern",
+      "passed": true,
+      "output": "Handled",
+      "error": null
+    }
+  ]
+}

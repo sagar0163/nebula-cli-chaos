@@ -1,0 +1,101 @@
+{
+  "timestamp": "2026-02-22T14:04:18.963Z",
+  "command": "nebula",
+  "summary": {
+    "total": 15,
+    "passed": 13,
+    "failed": 2,
+    "passRate": "86.7%",
+    "durationMs": 73917
+  },
+  "results": [
+    {
+      "name": "help_command",
+      "passed": true,
+      "output": "\n🌌 Nebula-CLI Options:\n  -v, --verbose    Enable verbose logging\n  -q, --quiet      Suppress non-essential output\n  -c, --config     Specify custom config file\n  -V, --version    Show version number\n  -h, --help       Show this help message\n            \n"
+    },
+    {
+      "name": "invalid_args",
+      "passed": true,
+      "output": "Error: Unknown flag '--invalid-arg-xyz'\nRun 'nebula --help' for available options.\n",
+      "error": null
+    },
+    {
+      "name": "empty_input",
+      "passed": true,
+      "output": "- 🧠 Dynamic Intelligence Initialization...\n✔ Indexing project artifacts...\n",
+      "error": null
+    },
+    {
+      "name": "concurrent_exec",
+      "passed": true,
+      "output": "Ran 5 concurrent commands",
+      "error": null
+    },
+    {
+      "name": "special_chars",
+      "passed": true,
+      "output": "",
+      "error": null
+    },
+    {
+      "name": "unicode_injection",
+      "passed": true,
+      "output": "",
+      "error": null
+    },
+    {
+      "name": "long_input",
+      "passed": true,
+      "output": "Input length: 100000",
+      "error": null
+    },
+    {
+      "name": "rapid_fire",
+      "passed": true,
+      "output": "20 commands in 5022ms",
+      "error": null
+    },
+    {
+      "name": "extreme_concurrency",
+      "passed": false,
+      "output": "0/100 succeeded in 25932ms",
+      "error": null
+    },
+    {
+      "name": "testMemoryStress",
+      "passed": false,
+      "error": "spawn E2BIG"
+    },
+    {
+      "name": "deep_nesting",
+      "passed": true,
+      "output": "50-level nesting handled",
+      "error": null
+    },
+    {
+      "name": "command_injection",
+      "passed": true,
+      "output": "All payloads blocked",
+      "error": null
+    },
+    {
+      "name": "json_bomb",
+      "passed": true,
+      "output": "Handled nested JSON",
+      "error": null
+    },
+    {
+      "name": "redos_pattern",
+      "passed": true,
+      "output": "Handled",
+      "error": null
+    },
+    {
+      "name": "zombie_detection",
+      "passed": true,
+      "output": "System responsive after kill",
+      "error": null
+    }
+  ]
+}

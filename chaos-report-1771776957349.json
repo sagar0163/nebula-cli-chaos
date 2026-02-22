@@ -1,0 +1,42 @@
+{
+  "timestamp": "2026-02-22T16:15:57.349Z",
+  "command": "nebula",
+  "summary": {
+    "total": 5,
+    "passed": 3,
+    "failed": 2,
+    "passRate": "60.0%",
+    "durationMs": 25423
+  },
+  "results": [
+    {
+      "name": "extreme_concurrency",
+      "passed": false,
+      "output": "1/100 succeeded in 20870ms",
+      "error": null
+    },
+    {
+      "name": "testMemoryStress",
+      "passed": false,
+      "error": "spawn E2BIG"
+    },
+    {
+      "name": "deep_nesting",
+      "passed": true,
+      "output": "50-level nesting handled",
+      "error": null
+    },
+    {
+      "name": "json_bomb",
+      "passed": true,
+      "output": "Handled nested JSON",
+      "error": null
+    },
+    {
+      "name": "redos_pattern",
+      "passed": true,
+      "output": "Handled",
+      "error": null
+    }
+  ]
+}
