@@ -1,0 +1,60 @@
+{
+  "timestamp": "2026-02-22T13:47:54.899Z",
+  "command": "nebula",
+  "summary": {
+    "total": 8,
+    "passed": 7,
+    "failed": 1,
+    "passRate": "87.5%",
+    "durationMs": 42696
+  },
+  "results": [
+    {
+      "name": "help_command",
+      "passed": false,
+      "output": "\n🌌 Nebula-CLI Options:\n  -v, --verbose    Enable verbose logging\n  -q, --quiet      Suppress non-essential output\n  -c, --config     Specify custom config file\n  -V, --version    Show version number\n  -h, --help       Show this help message\n            \n"
+    },
+    {
+      "name": "invalid_args",
+      "passed": true,
+      "output": "Error: Unknown flag '--invalid-arg-xyz'\nRun 'nebula --help' for available options.\n",
+      "error": null
+    },
+    {
+      "name": "empty_input",
+      "passed": true,
+      "output": "- 🧠 Dynamic Intelligence Initialization...\n✔ Indexing project artifacts...\n",
+      "error": null
+    },
+    {
+      "name": "concurrent_exec",
+      "passed": true,
+      "output": "Ran 5 concurrent commands",
+      "error": null
+    },
+    {
+      "name": "special_chars",
+      "passed": true,
+      "output": "",
+      "error": null
+    },
+    {
+      "name": "unicode_injection",
+      "passed": true,
+      "output": "",
+      "error": null
+    },
+    {
+      "name": "long_input",
+      "passed": true,
+      "output": "Input length: 100000",
+      "error": null
+    },
+    {
+      "name": "rapid_fire",
+      "passed": true,
+      "output": "20 commands in 6482ms",
+      "error": null
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "cwd": "/home/sagar-jadhav/.openclaw/workspace/nebula-cli-chaos",
+  "files": [
+    {
+      "name": ".nebula-project-id",
+      "path": ".nebula-project-id"
+    },
+    {
+      "name": "LICENSE",
+      "path": "LICENSE"
+    },
+    {
+      "name": "README.md",
+      "path": "README.md"
+    },
+    {
+      "name": "SAMPLE_RESULTS.md",
+      "path": "SAMPLE_RESULTS.md"
+    },
+    {
+      "name": "benchmark.js",
+      "path": "benchmark.js"
+    },
+    {
+      "name": "chaos-monkey.py",
+      "path": "chaos-monkey.py"
+    },
+    {
+      "name": "chaos-runner.js",
+      "path": "chaos-runner.js"
+    },
+    {
+      "name": "fuzz-tester.js",
+      "path": "fuzz-tester.js"
+    },
+    {
+      "name": "package.json",
+      "path": "package.json"
+    }
+  ],
+  "dirs": [],
+  "chartYamls": [],
+  "k8sFiles": [],
+  "packageJson": {
+    "name": "nebula-cli-chaos",
+    "version": "1.0.0",
+    "description": "Chaos testing framework for CLI applications",
+    "main": "chaos-monkey.js",
+    "scripts": {
+      "test": "node chaos-runner.js",
+      "test:network": "node chaos-runner.js --category network",
+      "test:memory": "node chaos-runner.js --category memory",
+      "test:concurrency": "node chaos-runner.js --category concurrency",
+      "test:fuzz": "node chaos-runner.js --category fuzz"
+    },
+    "keywords": [
+      "chaos",
+      "testing",
+      "cli",
+      "nebula"
+    ],
+    "author": "Sagar",
+    "license": "MIT"
+  },
+  "dockerCompose": null,
+  "charts": [],
+  "valuesFiles": [],
+  "entryPoint": "."
+}

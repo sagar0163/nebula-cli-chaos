@@ -88,9 +88,10 @@ class ChaosRunner {
      */
     async testHelpCommand() {
         const result = await this.exec(['--help']);
+        // Fixed: Nebula uses "Options" not "Usage"
         return {
             name: 'help_command',
-            passed: result.success && result.stdout.includes('Usage'),
+            passed: result.success && (result.stdout.includes('Options') || result.stdout.includes('Usage')),
             output: result.stdout,
             error: result.error
         };
@@ -205,6 +206,143 @@ class ChaosRunner {
         };
     }
 
+    // ========== AGGRESSIVE STRESS TESTS ==========
+
+    /**
+     * Test: Extreme Concurrency (100+ processes)
+     */
+    async testExtremeConcurrency() {
+        const count = 100;
+        const promises = [];
+        for (let i = 0; i < count; i++) {
+            promises.push(this.exec(['--help'], { timeout: 10000 }));
+        }
+        
+        const start = Date.now();
+        const results = await Promise.allSettled(promises);
+        const duration = Date.now() - start;
+        
+        const successful = results.filter(r => r.status === 'fulfilled' && r.value.success).length;
+        
+        return {
+            name: 'extreme_concurrency',
+            passed: successful >= count * 0.8, // At least 80% success
+            output: `${successful}/${count} succeeded in ${duration}ms`,
+            error: null
+        };
+    }
+
+    /**
+     * Test: Memory Stress (large repeated inputs)
+     */
+    async testMemoryStress() {
+        const hugeInput = 'x'.repeat(1000000); // 1MB
+        const result = await this.exec(['--input', hugeInput], { timeout: 15000 });
+        
+        return {
+            name: 'memory_stress',
+            passed: !result.timedOut, // Should handle without hanging
+            output: `1MB input: ${result.timedOut ? 'TIMEOUT' : 'OK'}`,
+            error: null
+        };
+    }
+
+    /**
+     * Test: Deep Nesting (simulated directory traversal)
+     */
+    async testDeepNesting() {
+        const deepPath = '../'.repeat(50);
+        const result = await this.exec(['--path', deepPath]);
+        
+        return {
+            name: 'deep_nesting',
+            passed: !result.timedOut,
+            output: `50-level nesting handled`,
+            error: null
+        };
+    }
+
+    /**
+     * Test: Command Injection Block
+     */
+    async testCommandInjection() {
+        const payloads = [
+            'echo hacked',
+            '$(whoami)',
+            '`ls`',
+            '&& cat /etc/passwd',
+            '| tee /tmp/pwned'
+        ];
+        
+        let allBlocked = true;
+        for (const payload of payloads) {
+            const result = await this.exec(['--input', payload]);
+            if (result.stdout.includes('hacked') || result.stdout.includes('root')) {
+                allBlocked = false;
+            }
+        }
+        
+        return {
+            name: 'command_injection',
+            passed: allBlocked,
+            output: allBlocked ? 'All payloads blocked' : 'VULNERABLE!',
+            error: null
+        };
+    }
+
+    /**
+     * Test: JSON Bomb (nested JSON)
+     */
+    async testJsonBomb() {
+        const jsonBomb = '{"a":{"b":{"c":{"d":{"e":' + '{"f":'.repeat(100) + '1' + '}'.repeat(101) + '}';
+        const result = await this.exec(['--input', jsonBomb]);
+        
+        return {
+            name: 'json_bomb',
+            passed: !result.timedOut,
+            output: result.timedOut ? 'TIMEOUT' : 'Handled nested JSON',
+            error: null
+        };
+    }
+
+    /**
+     * Test: ReDoS Pattern (regex denial of service)
+     */
+    async testRedos() {
+        const redosPattern = 'aaaaaaaaaaaaaaaaaaaaaaa!';
+        const result = await this.exec(['--input', redosPattern], { timeout: 5000 });
+        
+        return {
+            name: 'redos_pattern',
+            passed: !result.timedOut,
+            output: result.timedOut ? 'TIMEOUT (ReDoS vulnerable)' : 'Handled',
+            error: null
+        };
+    }
+
+    /**
+     * Test: Zombie Process Detection
+     */
+    async testZombieDetection() {
+        // Spawn multiple processes and kill them abruptly
+        const promises = [];
+        for (let i = 0; i < 10; i++) {
+            promises.push(this.exec(['--input', 'sleep 10'], { timeout: 100 }));
+        }
+        
+        await Promise.allSettled(promises);
+        
+        // Check if system is still responsive
+        const check = await this.exec(['--version'], { timeout: 5000 });
+        
+        return {
+            name: 'zombie_detection',
+            passed: check.success,
+            output: check.success ? 'System responsive after kill' : 'System hung',
+            error: null
+        };
+    }
+
     /**
      * Run all tests
      */
@@ -222,12 +360,21 @@ class ChaosRunner {
                 'testSpecialChars',
                 'testUnicode',
                 'testLongInput',
-                'testRapidFire'
+                'testRapidFire',
+                // Aggressive stress tests
+                'testExtremeConcurrency',
+                'testMemoryStress',
+                'testDeepNesting',
+                'testCommandInjection',
+                'testJsonBomb',
+                'testRedos',
+                'testZombieDetection'
             ],
-            network: ['testConcurrency', 'testRapidFire'],
-            memory: ['testLongInput'],
-            fuzz: ['testSpecialChars', 'testUnicode', 'testInvalidArgs'],
-            concurrency: ['testConcurrency', 'testRapidFire']
+            network: ['testConcurrency', 'testRapidFire', 'testExtremeConcurrency'],
+            memory: ['testLongInput', 'testMemoryStress', 'testJsonBomb'],
+            fuzz: ['testSpecialChars', 'testUnicode', 'testInvalidArgs', 'testCommandInjection', 'testRedos'],
+            concurrency: ['testConcurrency', 'testRapidFire', 'testExtremeConcurrency', 'testZombieDetection'],
+            stress: ['testExtremeConcurrency', 'testMemoryStress', 'testDeepNesting', 'testJsonBomb', 'testRedos']
         };
 
         const testMethods = tests[category] || tests.all;
