@@ -1,0 +1,16 @@
+{
+  "name": "nebula-cli-chaos",
+  "version": "1.0.0",
+  "description": "Chaos testing framework for CLI applications",
+  "main": "chaos-monkey.js",
+  "scripts": {
+    "test": "node chaos-runner.js",
+    "test:network": "node chaos-runner.js --category network",
+    "test:memory": "node chaos-runner.js --category memory",
+    "test:concurrency": "node chaos-runner.js --category concurrency",
+    "test:fuzz": "node chaos-runner.js --category fuzz"
+  },
+  "keywords": ["chaos", "testing", "cli", "nebula"],
+  "author": "Sagar",
+  "license": "MIT"
+}
