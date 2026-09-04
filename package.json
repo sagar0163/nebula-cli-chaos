@@ -4,11 +4,11 @@
   "description": "Chaos testing framework for CLI applications",
   "main": "chaos-monkey.js",
   "scripts": {
-    "test": "node chaos-runner.js",
-    "test:network": "node chaos-runner.js --category network",
-    "test:memory": "node chaos-runner.js --category memory",
-    "test:concurrency": "node chaos-runner.js --category concurrency",
-    "test:fuzz": "node chaos-runner.js --category fuzz"
+    "test": "node chaos-runner.js ./fixtures/mock-cli.js",
+    "test:network": "node chaos-runner.js --category=network ./fixtures/mock-cli.js",
+    "test:memory": "node chaos-runner.js --category=memory ./fixtures/mock-cli.js",
+    "test:concurrency": "node chaos-runner.js --category=concurrency ./fixtures/mock-cli.js",
+    "test:fuzz": "node chaos-runner.js --category=fuzz ./fixtures/mock-cli.js"
   },
   "keywords": ["chaos", "testing", "cli", "nebula"],
   "author": "Sagar",

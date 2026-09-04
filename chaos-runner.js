@@ -27,11 +27,16 @@ class ChaosRunner {
             const proc = spawn(this.command, args, {
                 env,
                 timeout,
-                shell: true
+                shell: false
             });
 
             let stdout = '';
             let stderr = '';
+
+            if (options.stdinData !== undefined) {
+                proc.stdin.write(options.stdinData);
+            }
+            proc.stdin.end();
 
             proc.stdout.on('data', (data) => {
                 stdout += data.toString();
@@ -236,8 +241,12 @@ class ChaosRunner {
      * Test: Memory Stress (large repeated inputs)
      */
     async testMemoryStress() {
+        // 1MB payload sent via stdin, not argv: a single argv element is
+        // capped by the kernel (MAX_ARG_STRLEN, ~128KB on Linux) regardless
+        // of shell usage, so this must go through stdin like real CLIs
+        // handle bulk input.
         const hugeInput = 'x'.repeat(1000000); // 1MB
-        const result = await this.exec(['--input', hugeInput], { timeout: 15000 });
+        const result = await this.exec(['--stdin-input'], { timeout: 15000, stdinData: hugeInput });
         
         return {
             name: 'memory_stress',
