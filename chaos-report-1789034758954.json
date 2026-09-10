@@ -1,0 +1,79 @@
+{
+  "timestamp": "2026-09-10T10:05:58.953Z",
+  "command": "./fixtures/mock-cli.js",
+  "summary": {
+    "total": 11,
+    "passed": 10,
+    "failed": 1,
+    "passRate": "90.9%",
+    "durationMs": 8183
+  },
+  "results": [
+    {
+      "name": "testFaultLatency",
+      "passed": true,
+      "output": "Latency: 549ms (target: 500ms)",
+      "error": null
+    },
+    {
+      "name": "testFaultDNSFailure",
+      "passed": true,
+      "output": "DNS resolution failed as expected: ENOTFOUND",
+      "error": null
+    },
+    {
+      "name": "testFaultDNSFailureViaProcess",
+      "passed": true,
+      "output": "Process DNS failure: code=1, elapsed=94ms",
+      "error": null
+    },
+    {
+      "name": "testFaultDiskPressure",
+      "passed": true,
+      "output": "Wrote 1048576 bytes (requested: 1048576)",
+      "error": null
+    },
+    {
+      "name": "testFaultOOMKill",
+      "passed": true,
+      "output": "Process killed: true, code: null",
+      "error": null
+    },
+    {
+      "name": "testFaultProcessKill",
+      "passed": true,
+      "output": "Process killed with SIGKILL, code: null",
+      "error": null
+    },
+    {
+      "name": "testFaultStdinBreak",
+      "passed": true,
+      "output": "Pipe break (SIGPIPE): true, code: 1",
+      "error": null
+    },
+    {
+      "name": "testFaultStdinRandomBytes",
+      "passed": false,
+      "output": "Random bytes injected: 20 bytes, EOF: false",
+      "error": null
+    },
+    {
+      "name": "testFaultStdinEOF",
+      "passed": true,
+      "output": "EOF injected: true, code: 1",
+      "error": null
+    },
+    {
+      "name": "testFaultStdoutThrottle",
+      "passed": true,
+      "output": "Stdout throttled for 200ms, received 100 chars",
+      "error": null
+    },
+    {
+      "name": "testFaultStderrThrottle",
+      "passed": true,
+      "output": "Stderr throttled for 200ms, received 100 chars",
+      "error": null
+    }
+  ]
+}

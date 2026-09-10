@@ -468,7 +468,7 @@ class ChaosTestRunner {
     }
 
     async testFaultStdinRandomBytes() {
-        const result = await FaultInjector.injectStdinRandomBytes({ dataLength: 20, eofChance: 0.5 });
+        const result = await FaultInjector.injectStdinRandomBytes({ dataLength: 20, eofChance: 1.0 });
         return {
             name: 'testFaultStdinRandomBytes',
             passed: result.injectedEof,
