@@ -13,7 +13,7 @@
 
 - [x] Create `chaos.config.json` — shared configuration (command, categories, timeouts, test definitions)
 - [x] Create `test-runner.js` — unified runner with all best tests from chaos-runner.js + dos-test.js
-- [ ] Update `package.json` — point scripts to new runner, fix `main` field
-- [ ] Remove old runners: `chaos-runner.js`, `chaos-monkey.py`, `dos-test.js`
+- [x] Update `package.json` — point scripts to new runner, fix `main` field
+- [x] Remove old runners: `chaos-runner.js`, `chaos-monkey.py`, `dos-test.js`
 - [ ] Run tests, verify all pass, fix any failures
 - [ ] Final cleanup: delete plan file, commit, push

@@ -1,5 +1,5 @@
 {
-  "cwd": "/home/sagar-jadhav/.openclaw/workspace/nebula-cli-chaos",
+  "cwd": "/home/sagar-jadhav/Documents/my project/war room/workspace/nebula-cli-chaos",
   "files": [
     {
       "name": ".nebula-project-id",
@@ -26,40 +26,45 @@
       "path": "benchmark.js"
     },
     {
-      "name": "chaos-monkey.py",
-      "path": "chaos-monkey.py"
-    },
-    {
-      "name": "chaos-report-1771768074904.json",
-      "path": "chaos-report-1771768074904.json"
-    },
-    {
-      "name": "chaos-runner.js",
-      "path": "chaos-runner.js"
+      "name": "chaos.config.json",
+      "path": "chaos.config.json"
     },
     {
       "name": "fuzz-tester.js",
       "path": "fuzz-tester.js"
     },
     {
+      "name": "test-runner.js",
+      "path": "test-runner.js"
+    },
+    {
       "name": "package.json",
       "path": "package.json"
+    },
+    {
+      "name": "package-lock.json",
+      "path": "package-lock.json"
     }
   ],
-  "dirs": [],
+  "dirs": [
+    "fixtures",
+    ".github",
+    "specs"
+  ],
   "chartYamls": [],
   "k8sFiles": [],
   "packageJson": {
     "name": "nebula-cli-chaos",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "description": "Chaos testing framework for CLI applications",
-    "main": "chaos-monkey.js",
+    "main": "test-runner.js",
     "scripts": {
-      "test": "node chaos-runner.js",
-      "test:network": "node chaos-runner.js --category network",
-      "test:memory": "node chaos-runner.js --category memory",
-      "test:concurrency": "node chaos-runner.js --category concurrency",
-      "test:fuzz": "node chaos-runner.js --category fuzz"
+      "test": "node test-runner.js",
+      "test:network": "node test-runner.js --category=network",
+      "test:memory": "node test-runner.js --category=memory",
+      "test:concurrency": "node test-runner.js --category=concurrency",
+      "test:fuzz": "node test-runner.js --category=fuzz",
+      "test:stress": "node test-runner.js --category=stress"
     },
     "keywords": [
       "chaos",
