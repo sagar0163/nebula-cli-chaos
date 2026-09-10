@@ -1,0 +1,162 @@
+{
+  "timestamp": "2026-09-10T09:21:54.381Z",
+  "command": "./fixtures/mock-cli.js",
+  "summary": {
+    "total": 25,
+    "passed": 25,
+    "failed": 0,
+    "passRate": "100.0%",
+    "durationMs": 17071
+  },
+  "results": [
+    {
+      "name": "testHelpCommand",
+      "passed": true,
+      "output": "Usage: mock-cli [options]\nOptions:\n  --help       Show help\n  --version    Show version\n  --input <text>  Accept input\n  --path <path>   Accept path\n  --query <text>  Accept query\n  --search <text>  Accept search\n"
+    },
+    {
+      "name": "testInvalidArgs",
+      "passed": true,
+      "output": "Error: Unknown flag: --invalid-arg-xyz\n",
+      "error": null
+    },
+    {
+      "name": "testEmptyInput",
+      "passed": true,
+      "output": "Error: Unknown flag: \n",
+      "error": null
+    },
+    {
+      "name": "testConcurrency",
+      "passed": true,
+      "output": "Ran 5 concurrent commands",
+      "error": null
+    },
+    {
+      "name": "testSpecialChars",
+      "passed": true,
+      "output": "",
+      "error": null
+    },
+    {
+      "name": "testUnicode",
+      "passed": true,
+      "output": "OK: 8 chars\n",
+      "error": null
+    },
+    {
+      "name": "testLongInput",
+      "passed": true,
+      "output": "Input length: 100000",
+      "error": null
+    },
+    {
+      "name": "testRapidFire",
+      "passed": true,
+      "output": "20 commands in 367ms",
+      "error": null
+    },
+    {
+      "name": "testExtremeConcurrency",
+      "passed": true,
+      "output": "100/100 succeeded in 324ms",
+      "error": null
+    },
+    {
+      "name": "testMemoryStress",
+      "passed": true,
+      "output": "1MB input: OK",
+      "error": null
+    },
+    {
+      "name": "testDeepNesting",
+      "passed": true,
+      "output": "50-level nesting handled",
+      "error": null
+    },
+    {
+      "name": "testCommandInjection",
+      "passed": true,
+      "output": "All payloads blocked",
+      "error": null
+    },
+    {
+      "name": "testJsonBomb",
+      "passed": true,
+      "output": "Handled nested JSON",
+      "error": null
+    },
+    {
+      "name": "testRedos",
+      "passed": true,
+      "output": "Handled",
+      "error": null
+    },
+    {
+      "name": "testZombieDetection",
+      "passed": true,
+      "output": "System responsive after kill",
+      "error": null
+    },
+    {
+      "name": "testForkBomb",
+      "passed": true,
+      "output": "3/3 handled",
+      "error": null
+    },
+    {
+      "name": "testAtomicBomb",
+      "passed": true,
+      "output": "4/4 handled",
+      "error": null
+    },
+    {
+      "name": "testResourceExhaustion",
+      "passed": true,
+      "output": "Memory increase: 0.60MB",
+      "error": null
+    },
+    {
+      "name": "testSlowLoris",
+      "passed": true,
+      "output": "Responsive",
+      "error": null
+    },
+    {
+      "name": "testFaultLatency",
+      "passed": true,
+      "output": "Latency: 576ms (target: 500ms)",
+      "error": null
+    },
+    {
+      "name": "testFaultDNSFailure",
+      "passed": true,
+      "output": "DNS resolution failed as expected: ENOTFOUND",
+      "error": null
+    },
+    {
+      "name": "testFaultDNSFailureViaProcess",
+      "passed": true,
+      "output": "Process DNS failure: code=1, elapsed=75ms",
+      "error": null
+    },
+    {
+      "name": "testFaultDiskPressure",
+      "passed": true,
+      "output": "Wrote 1048576 bytes (requested: 1048576)",
+      "error": null
+    },
+    {
+      "name": "testFaultOOMKill",
+      "passed": true,
+      "output": "Process killed: true, code: null",
+      "error": null
+    },
+    {
+      "name": "testFaultProcessKill",
+      "passed": true,
+      "output": "Process killed with SIGKILL, code: null",
+      "error": null
+    }
+  ]
+}

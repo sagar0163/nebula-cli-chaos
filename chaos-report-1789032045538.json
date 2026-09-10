@@ -1,0 +1,49 @@
+{
+  "timestamp": "2026-09-10T09:20:45.533Z",
+  "command": "./fixtures/mock-cli.js",
+  "summary": {
+    "total": 6,
+    "passed": 6,
+    "failed": 0,
+    "passRate": "100.0%",
+    "durationMs": 7733
+  },
+  "results": [
+    {
+      "name": "testFaultLatency",
+      "passed": true,
+      "output": "Latency: 605ms (target: 500ms)",
+      "error": null
+    },
+    {
+      "name": "testFaultDNSFailure",
+      "passed": true,
+      "output": "DNS resolution failed as expected: ENOTFOUND",
+      "error": null
+    },
+    {
+      "name": "testFaultDNSFailureViaProcess",
+      "passed": true,
+      "output": "Process DNS failure: code=1, elapsed=168ms",
+      "error": null
+    },
+    {
+      "name": "testFaultDiskPressure",
+      "passed": true,
+      "output": "Wrote 1048576 bytes (requested: 1048576)",
+      "error": null
+    },
+    {
+      "name": "testFaultOOMKill",
+      "passed": true,
+      "output": "Process killed: true, code: null",
+      "error": null
+    },
+    {
+      "name": "testFaultProcessKill",
+      "passed": true,
+      "output": "Process killed with SIGKILL, code: null",
+      "error": null
+    }
+  ]
+}

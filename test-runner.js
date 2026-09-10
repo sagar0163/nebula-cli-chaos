@@ -457,6 +457,55 @@ class ChaosTestRunner {
             error: null
         };
     }
+    async testFaultStdinBreak() {
+        const result = await FaultInjector.injectStdIOBreak({ pipeDuration: 50 });
+        return {
+            name: 'testFaultStdinBreak',
+            passed: result.sigpipe,
+            output: `Pipe break (SIGPIPE): ${result.sigpipe}, code: ${result.code}`,
+            error: null
+        };
+    }
+
+    async testFaultStdinRandomBytes() {
+        const result = await FaultInjector.injectStdinRandomBytes({ dataLength: 20, eofChance: 0.5 });
+        return {
+            name: 'testFaultStdinRandomBytes',
+            passed: result.injectedEof,
+            output: `Random bytes injected: ${result.injectedBytes} bytes, EOF: ${result.injectedEof}`,
+            error: null
+        };
+    }
+
+    async testFaultStdinEOF() {
+        const result = await FaultInjector.injectStdinEOF();
+        return {
+            name: 'testFaultStdinEOF',
+            passed: result.eofInjected,
+            output: `EOF injected: ${result.eofInjected}, code: ${result.code}`,
+            error: null
+        };
+    }
+
+    async testFaultStdoutThrottle() {
+        const result = await FaultInjector.throttleStdout({ holdTime: 200 });
+        return {
+            name: 'testFaultStdoutThrottle',
+            passed: result.throttle,
+            output: `Stdout throttled for ${result.heldTime}ms, received ${result.stdout.length} chars`,
+            error: null
+        };
+    }
+
+    async testFaultStderrThrottle() {
+        const result = await FaultInjector.throttleStderr({ holdTime: 200 });
+        return {
+            name: 'testFaultStderrThrottle',
+            passed: result.throttle,
+            output: `Stderr throttled for ${result.heldTime}ms, received ${result.stderr.length} chars`,
+            error: null
+        };
+    }
 
     // ---- RUNNER ----
 
