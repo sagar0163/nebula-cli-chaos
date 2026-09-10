@@ -1,0 +1,86 @@
+{
+  "command": "./fixtures/mock-cli.js",
+  "defaultTimeout": 10000,
+  "reportDir": ".",
+  "categories": {
+    "network": [
+      "testConcurrency",
+      "testRapidFire",
+      "testExtremeConcurrency",
+      "testSlowLoris"
+    ],
+    "memory": [
+      "testLongInput",
+      "testMemoryStress",
+      "testJsonBomb",
+      "testResourceExhaustion"
+    ],
+    "concurrency": [
+      "testConcurrency",
+      "testRapidFire",
+      "testExtremeConcurrency",
+      "testZombieDetection",
+      "testForkBomb"
+    ],
+    "fuzz": [
+      "testSpecialChars",
+      "testUnicode",
+      "testInvalidArgs",
+      "testCommandInjection",
+      "testRedos",
+      "testAtomicBomb"
+    ],
+    "stress": [
+      "testExtremeConcurrency",
+      "testMemoryStress",
+      "testDeepNesting",
+      "testJsonBomb",
+      "testRedos",
+      "testAtomicBomb",
+      "testResourceExhaustion",
+      "testForkBomb"
+    ],
+    "all": [
+      "testHelpCommand",
+      "testInvalidArgs",
+      "testEmptyInput",
+      "testConcurrency",
+      "testSpecialChars",
+      "testUnicode",
+      "testLongInput",
+      "testRapidFire",
+      "testExtremeConcurrency",
+      "testMemoryStress",
+      "testDeepNesting",
+      "testCommandInjection",
+      "testJsonBomb",
+      "testRedos",
+      "testZombieDetection",
+      "testForkBomb",
+      "testAtomicBomb",
+      "testResourceExhaustion",
+      "testSlowLoris"
+    ]
+  },
+  "tests": {
+    "testHelpCommand": { "category": "basic", "timeout": 5000 },
+    "testInvalidArgs": { "category": "fuzz", "timeout": 5000 },
+    "testEmptyInput": { "category": "basic", "timeout": 5000 },
+    "testConcurrency": { "category": "concurrency", "timeout": 15000 },
+    "testSpecialChars": { "category": "fuzz", "timeout": 5000 },
+    "testUnicode": { "category": "fuzz", "timeout": 5000 },
+    "testLongInput": { "category": "memory", "timeout": 10000 },
+    "testRapidFire": { "category": "concurrency", "timeout": 15000 },
+    "testExtremeConcurrency": { "category": "stress", "timeout": 30000 },
+    "testMemoryStress": { "category": "memory", "timeout": 20000 },
+    "testDeepNesting": { "category": "stress", "timeout": 10000 },
+    "testCommandInjection": { "category": "fuzz", "timeout": 10000 },
+    "testJsonBomb": { "category": "stress", "timeout": 10000 },
+    "testRedos": { "category": "fuzz", "timeout": 10000 },
+    "testZombieDetection": { "category": "concurrency", "timeout": 15000 },
+    "testForkBomb": { "category": "concurrency", "timeout": 10000 },
+    "testAtomicBomb": { "category": "fuzz", "timeout": 10000 },
+    "testResourceExhaustion": { "category": "stress", "timeout": 15000 },
+    "testSlowLoris": { "category": "network", "timeout": 10000 }
+  }
+}
