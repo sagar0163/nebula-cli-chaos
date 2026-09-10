@@ -1,14 +1,15 @@
 {
   "name": "nebula-cli-chaos",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Chaos testing framework for CLI applications",
-  "main": "chaos-monkey.js",
+  "main": "test-runner.js",
   "scripts": {
-    "test": "node chaos-runner.js ./fixtures/mock-cli.js",
-    "test:network": "node chaos-runner.js --category=network ./fixtures/mock-cli.js",
-    "test:memory": "node chaos-runner.js --category=memory ./fixtures/mock-cli.js",
-    "test:concurrency": "node chaos-runner.js --category=concurrency ./fixtures/mock-cli.js",
-    "test:fuzz": "node chaos-runner.js --category=fuzz ./fixtures/mock-cli.js"
+    "test": "node test-runner.js",
+    "test:network": "node test-runner.js --category=network",
+    "test:memory": "node test-runner.js --category=memory",
+    "test:concurrency": "node test-runner.js --category=concurrency",
+    "test:fuzz": "node test-runner.js --category=fuzz",
+    "test:stress": "node test-runner.js --category=stress"
   },
   "keywords": ["chaos", "testing", "cli", "nebula"],
   "author": "Sagar",
