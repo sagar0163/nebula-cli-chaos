@@ -1,0 +1,43 @@
+{
+  "timestamp": "2026-09-10T07:29:25.100Z",
+  "command": "./fixtures/mock-cli.js",
+  "summary": {
+    "total": 5,
+    "passed": 5,
+    "failed": 0,
+    "passRate": "100.0%",
+    "durationMs": 8497
+  },
+  "results": [
+    {
+      "name": "testConcurrency",
+      "passed": true,
+      "output": "Ran 5 concurrent commands",
+      "error": null
+    },
+    {
+      "name": "testRapidFire",
+      "passed": true,
+      "output": "20 commands in 289ms",
+      "error": null
+    },
+    {
+      "name": "testExtremeConcurrency",
+      "passed": true,
+      "output": "100/100 succeeded in 1189ms",
+      "error": null
+    },
+    {
+      "name": "testZombieDetection",
+      "passed": true,
+      "output": "System responsive after kill",
+      "error": null
+    },
+    {
+      "name": "testForkBomb",
+      "passed": true,
+      "output": "3/3 handled",
+      "error": null
+    }
+  ]
+}

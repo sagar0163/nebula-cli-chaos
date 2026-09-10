@@ -1,0 +1,61 @@
+{
+  "timestamp": "2026-09-10T07:30:02.869Z",
+  "command": "./fixtures/mock-cli.js",
+  "summary": {
+    "total": 8,
+    "passed": 8,
+    "failed": 0,
+    "passRate": "100.0%",
+    "durationMs": 4435
+  },
+  "results": [
+    {
+      "name": "testExtremeConcurrency",
+      "passed": true,
+      "output": "100/100 succeeded in 218ms",
+      "error": null
+    },
+    {
+      "name": "testMemoryStress",
+      "passed": true,
+      "output": "1MB input: OK",
+      "error": null
+    },
+    {
+      "name": "testDeepNesting",
+      "passed": true,
+      "output": "50-level nesting handled",
+      "error": null
+    },
+    {
+      "name": "testJsonBomb",
+      "passed": true,
+      "output": "Handled nested JSON",
+      "error": null
+    },
+    {
+      "name": "testRedos",
+      "passed": true,
+      "output": "Handled",
+      "error": null
+    },
+    {
+      "name": "testAtomicBomb",
+      "passed": true,
+      "output": "4/4 handled",
+      "error": null
+    },
+    {
+      "name": "testResourceExhaustion",
+      "passed": true,
+      "output": "Memory increase: -0.71MB",
+      "error": null
+    },
+    {
+      "name": "testForkBomb",
+      "passed": true,
+      "output": "3/3 handled",
+      "error": null
+    }
+  ]
+}
