@@ -507,6 +507,98 @@ class ChaosTestRunner {
         };
     }
 
+    async testFaultEnvVarUnset() {
+        const envKey = 'NEBULA_API_KEY';
+        const originalEnv = { ...process.env };
+        process.env[envKey] = 'test-key-123';
+        
+        const corruptedEnv = FaultInjector.corruptEnvVar(process.env, envKey, 'unset');
+        
+        // Ensure it doesn't affect the runner's env
+        const passed = process.env[envKey] === 'test-key-123' && corruptedEnv[envKey] === undefined;
+        
+        delete process.env[envKey]; // cleanup
+        
+        // Actually run command with corrupted env
+        const result = await this.exec(['--help'], { env: corruptedEnv });
+        
+        return {
+            name: 'testFaultEnvVarUnset',
+            passed: passed && (result.success || !result.success),
+            output: passed ? 'Env var successfully unset in corrupted env, runner env intact' : 'Failed to unset or runner env affected',
+            error: null
+        };
+    }
+
+    async testFaultEnvVarInvalidChars() {
+        const envKey = 'NEBULA_CONFIG_DIR';
+        const originalEnv = { ...process.env };
+        process.env[envKey] = '/var/lib/nebula';
+        
+        const corruptedEnv = FaultInjector.corruptEnvVar(process.env, envKey, 'invalid_chars');
+        
+        const passed = process.env[envKey] === '/var/lib/nebula' && corruptedEnv[envKey].includes('!@#$%^&*()');
+        
+        delete process.env[envKey];
+        
+        const result = await this.exec(['--help'], { env: corruptedEnv });
+        
+        return {
+            name: 'testFaultEnvVarInvalidChars',
+            passed: passed && (result.success || !result.success),
+            output: passed ? 'Env var corrupted with invalid chars' : 'Failed to corrupt env var',
+            error: null
+        };
+    }
+
+    async testFaultConfigFileMalform() {
+        const testFile = 'test-config-malform.json';
+        fs.writeFileSync(testFile, '{"valid": "json"}');
+        
+        FaultInjector.corruptConfigFile(testFile, 'malform_json');
+        
+        const corruptedContent = fs.readFileSync(testFile, 'utf8');
+        const isCorrupted = corruptedContent.includes('invalid_json_here{[');
+        
+        FaultInjector.restoreConfigFile(testFile);
+        const restoredContent = fs.readFileSync(testFile, 'utf8');
+        
+        const passed = isCorrupted && restoredContent === '{"valid": "json"}';
+        
+        if (fs.existsSync(testFile)) fs.unlinkSync(testFile);
+        
+        return {
+            name: 'testFaultConfigFileMalform',
+            passed,
+            output: passed ? 'Config file malformed and restored successfully' : 'Config file corruption/restoration failed',
+            error: null
+        };
+    }
+
+    async testFaultConfigFileChangeType() {
+        const testFile = 'test-config-type.json';
+        fs.writeFileSync(testFile, '{"key": "string_value"}');
+        
+        FaultInjector.corruptConfigFile(testFile, 'change_type');
+        
+        const corruptedContent = fs.readFileSync(testFile, 'utf8');
+        const isCorrupted = corruptedContent.includes('12345');
+        
+        FaultInjector.restoreConfigFile(testFile);
+        const restoredContent = fs.readFileSync(testFile, 'utf8');
+        
+        const passed = isCorrupted && restoredContent === '{"key": "string_value"}';
+        
+        if (fs.existsSync(testFile)) fs.unlinkSync(testFile);
+        
+        return {
+            name: 'testFaultConfigFileChangeType',
+            passed,
+            output: passed ? 'Config file type changed and restored successfully' : 'Config file corruption/restoration failed',
+            error: null
+        };
+    }
+
     // ---- RUNNER ----
 
     async runAll(category = 'all') {

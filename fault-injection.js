@@ -190,7 +190,6 @@ class FaultInjector {
                 }
             };
 
-            // Downstream consumer: reads the target's stdout until we kill it.
             const consumer = spawn(downstream, downstreamArgs, { timeout: timeoutMs });
             consumer.on('error', () => {});
             if (consumer.stdin) consumer.stdin.on('error', () => {});
@@ -211,8 +210,6 @@ class FaultInjector {
                 }
             });
 
-            // After pipeDuration, kill the downstream so the pipe the target writes
-            // into loses its reader -> SIGPIPE in the target on next write.
             setTimeout(() => {
                 pipeBroken = true;
                 try { consumer.kill('SIGKILL'); } catch (_) {}
@@ -349,8 +346,6 @@ class FaultInjector {
                          setTimeout(() => { process.exit(0); }, ${holdTime});
                      });`], { timeout: timeoutMs });
 
-            // Deliberately do NOT drain stdout for holdTime ms -> pipe buffers up,
-            // which is exactly the blocked/buffered IO condition we test for.
             setTimeout(() => {
                 if (child.stdout) {
                     child.stdout.on('data', (data) => { receivedData += data.toString(); });
@@ -427,6 +422,88 @@ class FaultInjector {
                 }
             }, holdTime + timeoutMs);
         });
+    }
+
+    /**
+     * Corrupts environment variables in the provided env object.
+     * Strategies: 'unset', 'truncate', 'invalid_chars'
+     */
+    static corruptEnvVar(envObj, key, strategy) {
+        const newEnv = { ...envObj };
+        if (strategy === 'unset') {
+            delete newEnv[key];
+        } else if (strategy === 'truncate') {
+            if (newEnv[key]) {
+                newEnv[key] = String(newEnv[key]).substring(0, Math.floor(String(newEnv[key]).length / 2));
+            }
+        } else if (strategy === 'invalid_chars') {
+            if (newEnv[key]) {
+                newEnv[key] = String(newEnv[key]) + '\uFFFD\xFF!@#$%^&*()';
+            } else {
+                newEnv[key] = '\uFFFD\xFF!@#$%^&*()';
+            }
+        }
+        return newEnv;
+    }
+
+    static _configBackups = new Map();
+    static _exitHooksSetup = false;
+
+    static setupExitHooks() {
+        if (FaultInjector._exitHooksSetup) return;
+        FaultInjector._exitHooksSetup = true;
+        const restoreAll = () => {
+            for (const [filePath, backupData] of FaultInjector._configBackups.entries()) {
+                try {
+                    fs.writeFileSync(filePath, backupData);
+                } catch(e) {}
+            }
+        };
+        process.on('exit', restoreAll);
+        process.on('SIGINT', () => { restoreAll(); process.exit(1); });
+        process.on('SIGTERM', () => { restoreAll(); process.exit(1); });
+        process.on('uncaughtException', (err) => { restoreAll(); console.error(err); process.exit(1); });
+    }
+
+    /**
+     * Temporarily corrupts a config file.
+     * Backs up the original and registers exit hooks to restore it.
+     */
+    static corruptConfigFile(filePath, strategy) {
+        FaultInjector.setupExitHooks();
+        const content = fs.readFileSync(filePath, 'utf8');
+        if (!FaultInjector._configBackups.has(filePath)) {
+            FaultInjector._configBackups.set(filePath, content);
+        }
+
+        let corrupted = content;
+        if (strategy === 'malform_json') {
+            corrupted = content.substring(0, Math.floor(content.length / 2)) + 'invalid_json_here{[';
+        } else if (strategy === 'change_type') {
+            try {
+                const parsed = JSON.parse(content);
+                for (const key in parsed) {
+                    if (typeof parsed[key] === 'string') {
+                        parsed[key] = 12345;
+                        break;
+                    }
+                }
+                corrupted = JSON.stringify(parsed);
+            } catch(e) {
+                corrupted = content + 'invalid';
+            }
+        }
+        fs.writeFileSync(filePath, corrupted);
+    }
+
+    static restoreConfigFile(filePath) {
+        if (FaultInjector._configBackups.has(filePath)) {
+            const backupData = FaultInjector._configBackups.get(filePath);
+            try {
+                fs.writeFileSync(filePath, backupData);
+            } catch(e) {}
+            FaultInjector._configBackups.delete(filePath);
+        }
     }
 }
 

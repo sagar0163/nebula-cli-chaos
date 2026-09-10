@@ -51,7 +51,11 @@
       "testFaultStdinRandomBytes",
       "testFaultStdinEOF",
       "testFaultStdoutThrottle",
-      "testFaultStderrThrottle"
+      "testFaultStderrThrottle",
+      "testFaultEnvVarUnset",
+      "testFaultEnvVarInvalidChars",
+      "testFaultConfigFileMalform",
+      "testFaultConfigFileChangeType"
     ],
     "all": [
       "testHelpCommand",
@@ -83,129 +87,47 @@
       "testFaultStdinRandomBytes",
       "testFaultStdinEOF",
       "testFaultStdoutThrottle",
-      "testFaultStderrThrottle"
+      "testFaultStderrThrottle",
+      "testFaultEnvVarUnset",
+      "testFaultEnvVarInvalidChars",
+      "testFaultConfigFileMalform",
+      "testFaultConfigFileChangeType"
     ]
   },
   "tests": {
-    "testHelpCommand": {
-      "category": "basic",
-      "timeout": 5000
-    },
-    "testInvalidArgs": {
-      "category": "fuzz",
-      "timeout": 5000
-    },
-    "testEmptyInput": {
-      "category": "basic",
-      "timeout": 5000
-    },
-    "testConcurrency": {
-      "category": "concurrency",
-      "timeout": 15000
-    },
-    "testSpecialChars": {
-      "category": "fuzz",
-      "timeout": 5000
-    },
-    "testUnicode": {
-      "category": "fuzz",
-      "timeout": 5000
-    },
-    "testLongInput": {
-      "category": "memory",
-      "timeout": 10000
-    },
-    "testRapidFire": {
-      "category": "concurrency",
-      "timeout": 15000
-    },
-    "testExtremeConcurrency": {
-      "category": "stress",
-      "timeout": 30000
-    },
-    "testMemoryStress": {
-      "category": "memory",
-      "timeout": 20000
-    },
-    "testDeepNesting": {
-      "category": "stress",
-      "timeout": 10000
-    },
-    "testCommandInjection": {
-      "category": "fuzz",
-      "timeout": 10000
-    },
-    "testJsonBomb": {
-      "category": "stress",
-      "timeout": 10000
-    },
-    "testRedos": {
-      "category": "fuzz",
-      "timeout": 10000
-    },
-    "testZombieDetection": {
-      "category": "concurrency",
-      "timeout": 15000
-    },
-    "testForkBomb": {
-      "category": "concurrency",
-      "timeout": 10000
-    },
-    "testAtomicBomb": {
-      "category": "fuzz",
-      "timeout": 10000
-    },
-    "testResourceExhaustion": {
-      "category": "stress",
-      "timeout": 15000
-    },
-    "testSlowLoris": {
-      "category": "network",
-      "timeout": 10000
-    },
-    "testFaultLatency": {
-      "category": "fault-injection",
-      "timeout": 10000
-    },
-    "testFaultDNSFailure": {
-      "category": "fault-injection",
-      "timeout": 10000
-    },
-    "testFaultDNSFailureViaProcess": {
-      "category": "fault-injection",
-      "timeout": 10000
-    },
-    "testFaultDiskPressure": {
-      "category": "fault-injection",
-      "timeout": 30000
-    },
-    "testFaultOOMKill": {
-      "category": "fault-injection",
-      "timeout": 15000
-    },
-    "testFaultProcessKill": {
-      "category": "fault-injection",
-      "timeout": 10000
-    },
-    "testFaultStdinBreak": {
-      "category": "fault-injection",
-      "timeout": 10000
-    },
-    "testFaultStdinRandomBytes": {
-      "category": "fault-injection",
-      "timeout": 10000
-    },
-    "testFaultStdinEOF": {
-      "category": "fault-injection",
-      "timeout": 10000
-    },
-    "testFaultStdoutThrottle": {
-      "category": "fault-injection",
-      "timeout": 10000
-    },
-    "testFaultStderrThrottle": {
-      "category": "fault-injection",
-      "timeout": 10000
-    }
+    "testHelpCommand": { "category": "basic", "timeout": 5000 },
+    "testInvalidArgs": { "category": "fuzz", "timeout": 5000 },
+    "testEmptyInput": { "category": "basic", "timeout": 5000 },
+    "testConcurrency": { "category": "concurrency", "timeout": 15000 },
+    "testSpecialChars": { "category": "fuzz", "timeout": 5000 },
+    "testUnicode": { "category": "fuzz", "timeout": 5000 },
+    "testLongInput": { "category": "memory", "timeout": 10000 },
+    "testRapidFire": { "category": "concurrency", "timeout": 15000 },
+    "testExtremeConcurrency": { "category": "stress", "timeout": 30000 },
+    "testMemoryStress": { "category": "memory", "timeout": 20000 },
+    "testDeepNesting": { "category": "stress", "timeout": 10000 },
+    "testCommandInjection": { "category": "fuzz", "timeout": 10000 },
+    "testJsonBomb": { "category": "stress", "timeout": 10000 },
+    "testRedos": { "category": "fuzz", "timeout": 10000 },
+    "testZombieDetection": { "category": "concurrency", "timeout": 15000 },
+    "testForkBomb": { "category": "concurrency", "timeout": 10000 },
+    "testAtomicBomb": { "category": "fuzz", "timeout": 10000 },
+    "testResourceExhaustion": { "category": "stress", "timeout": 15000 },
+    "testSlowLoris": { "category": "network", "timeout": 10000 },
+    "testFaultLatency": { "category": "fault-injection", "timeout": 10000 },
+    "testFaultDNSFailure": { "category": "fault-injection", "timeout": 10000 },
+    "testFaultDNSFailureViaProcess": { "category": "fault-injection", "timeout": 10000 },
+    "testFaultDiskPressure": { "category": "fault-injection", "timeout": 30000 },
+    "testFaultOOMKill": { "category": "fault-injection", "timeout": 15000 },
+    "testFaultProcessKill": { "category": "fault-injection", "timeout": 10000 },
+    "testFaultStdinBreak": { "category": "fault-injection", "timeout": 10000 },
+    "testFaultStdinRandomBytes": { "category": "fault-injection", "timeout": 10000 },
+    "testFaultStdinEOF": { "category": "fault-injection", "timeout": 10000 },
+    "testFaultStdoutThrottle": { "category": "fault-injection", "timeout": 10000 },
+    "testFaultStderrThrottle": { "category": "fault-injection", "timeout": 10000 },
+    "testFaultEnvVarUnset": { "category": "fault-injection", "timeout": 10000 },
+    "testFaultEnvVarInvalidChars": { "category": "fault-injection", "timeout": 10000 },
+    "testFaultConfigFileMalform": { "category": "fault-injection", "timeout": 10000 },
+    "testFaultConfigFileChangeType": { "category": "fault-injection", "timeout": 10000 }
   }
 }
