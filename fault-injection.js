@@ -155,181 +155,277 @@ class FaultInjector {
         });
     }
 
+    /**
+     * Simulate a broken pipe (SIGPIPE/EPIPE) against the target CLI.
+     * Spawns the target command, pipes its stdout into a downstream consumer,
+     * then terminates the downstream process so the target's next write to the
+     * pipe triggers EPIPE (Node) / SIGPIPE (POSIX default handling).
+     * If no command is given, falls back to a self-contained high-volume writer.
+     */
     static async injectStdIOBreak(options = {}) {
-        const { pipeDuration = 100, writeData = 'A'.repeat(100) } = options;
+        const {
+            command = null,
+            args = ['--help'],
+            pipeDuration = 100,
+            downstream = 'node',
+            downstreamArgs = ['-e', 'setInterval(() => {}, 50);'],
+            timeoutMs = 10000
+        } = options;
         return new Promise((resolve) => {
-            let pipeClosed = false;
+            let pipeBroken = false;
             let sigpipeTriggered = false;
             let stdoutData = '';
+            let captured = false;
 
-            const child = spawn('node', ['-e', `const { spawn } = require('child_process');
-                 const child2 = spawn('node', ['-e', 'process.exit(0)']);
-                 process.stdout.write(Buffer.from('${writeData}')).write('\n');
-                 setTimeout(() => { process.exit(0); }, ${pipeDuration});
-                 child2.kill('SIGKILL');`], { timeout: 10000 });
-
-            child.stdout.on('data', (data) => { stdoutData += data.toString(); });
-
-            setTimeout(() => {
-                if (child.stdout && !pipeClosed) {
-                    pipeClosed = true;
-                    try { child.stdout.destroy(); } catch (_) {}
-                    sigpipeTriggered = true;
+            const capture = (data) => {
+                if (stdoutData.length < 1e6) {
+                    stdoutData += data.toString();
                 }
+            };
+
+            const done = (code, extra = {}) => {
+                if (!captured) {
+                    captured = true;
+                    resolve({ code, pipeBroken, sigpipe: sigpipeTriggered, stdout: stdoutData, ...extra });
+                }
+            };
+
+            // Downstream consumer: reads the target's stdout until we kill it.
+            const consumer = spawn(downstream, downstreamArgs, { timeout: timeoutMs });
+            consumer.on('error', () => {});
+            if (consumer.stdin) consumer.stdin.on('error', () => {});
+            if (consumer.stdout) consumer.stdout.on('error', () => {});
+            if (consumer.stderr) consumer.stderr.on('error', () => {});
+
+            const child = command
+                ? spawn(command, args, { timeout: timeoutMs })
+                : spawn('node', ['-e', `const b = Buffer.alloc(65536, 0x61);
+                    setInterval(() => { try { process.stdout.write(b); } catch (_) {} }, 1);`], { timeout: timeoutMs });
+
+            child.stdout.pipe(consumer.stdin, { end: false });
+            child.stdout.on('data', capture);
+            child.stdout.on('error', (err) => {
+                if (err.code === 'EPIPE') {
+                    sigpipeTriggered = true;
+                    pipeBroken = true;
+                }
+            });
+
+            // After pipeDuration, kill the downstream so the pipe the target writes
+            // into loses its reader -> SIGPIPE in the target on next write.
+            setTimeout(() => {
+                pipeBroken = true;
+                try { consumer.kill('SIGKILL'); } catch (_) {}
             }, pipeDuration);
 
-            child.on('close', (code) => {
-                resolve({
-                    code,
-                    stdout: stdoutData,
-                    sigpipe: sigpipeTriggered,
-                    pipeClosed
-                });
+            child.on('close', (code, signal) => {
+                if (signal) {
+                    sigpipeTriggered = true;
+                    pipeBroken = true;
+                }
+                done(code, { signal });
             });
             child.on('error', (err) => {
-                resolve({ code: -1, error: err.message, stdout: stdoutData });
+                done(-1, { error: err.message });
             });
+            setTimeout(() => {
+                if (!captured) {
+                    try { child.kill('SIGKILL'); } catch (_) {}
+                    try { consumer.kill('SIGKILL'); } catch (_) {}
+                    done(-1, { timedOut: true });
+                }
+            }, timeoutMs + 1000);
         });
     }
 
+    /**
+     * Inject random bytes (and optionally EOF) into the target CLI's stdin.
+     */
     static async injectStdinRandomBytes(options = {}) {
-        const { dataLength = 50, eofChance = 0.5 } = options;
+        const {
+            command = null,
+            args = ['--stdin-input'],
+            dataLength = 50,
+            eofChance = 0.5,
+            timeoutMs = 10000
+        } = options;
         return new Promise((resolve) => {
             const randomBytes = [];
             for (let i = 0; i < dataLength; i++) {
                 randomBytes.push(Math.floor(Math.random() * 256));
             }
             const randBuf = Buffer.from(randomBytes);
-
             const injectEof = Math.random() < eofChance;
-
-            const child = spawn('node', ['-e', `const fs = require('fs');
-                 process.stdin.resume();
-                 process.stdin.on('data', (data) => { process.stdout.write('RECEIVED: ' + data.toString().length + '\n'); });
-                 process.stdin.on('end', () => { process.stdout.write('STDIN_ENDED\n'); process.exit(0); });
-                 const hexStr = Buffer.from(${JSON.stringify(randomBytes)}).toString('hex');
-                 process.stdin.push(Buffer.from(hexStr, 'hex'));
-                 ${injectEof ? 'process.stdin.destroy()' : 'setTimeout(() => { process.stdin.end(); process.exit(0); }, 100)'}`], { timeout: 10000 });
-
             let stdoutData = '';
+
+            const selfContainedScript = `
+                process.stdin.resume();
+                process.stdin.on('data', (data) => { process.stdout.write('RECEIVED: ' + data.length + '\n'); });
+                process.stdin.on('end', () => { process.stdout.write('STDIN_ENDED\n'); process.exit(0); });
+                const hexStr = Buffer.from(${JSON.stringify(randomBytes)}).toString('hex');
+                process.stdin.push(Buffer.from(hexStr, 'hex'));
+                ${injectEof ? 'process.stdin.destroy()' : 'setTimeout(() => { process.stdin.end(); process.exit(0); }, 100)'}
+            `;
+
+            const child = command
+                ? spawn(command, args, { timeout: timeoutMs })
+                : spawn('node', ['-e', selfContainedScript], { timeout: timeoutMs });
+
             child.stdout.on('data', (data) => { stdoutData += data.toString(); });
+            child.stderr.on('data', (data) => { stdoutData += data.toString(); });
+
+            if (command) {
+                try {
+                    child.stdin.write(randBuf);
+                    if (injectEof) {
+                        child.stdin.end();
+                    } else {
+                        setTimeout(() => { try { child.stdin.end(); } catch (_) {} }, 100);
+                    }
+                } catch (_) {}
+            }
 
             child.on('close', (code) => {
-                resolve({
-                    code,
-                    injectedBytes: dataLength,
-                    injectedEof: injectEof,
-                    stdout: stdoutData
-                });
+                resolve({ code, injectedBytes: dataLength, injectedEof: injectEof, stdout: stdoutData });
             });
             child.on('error', (err) => {
-                resolve({ code: -1, error: err.message, stdout: stdoutData });
+                resolve({ code: -1, error: err.message, injectedBytes: dataLength, injectedEof: injectEof, stdout: stdoutData });
             });
         });
     }
 
+    /**
+     * Inject an immediate EOF into the target CLI's stdin.
+     */
     static async injectStdinEOF(options = {}) {
+        const {
+            command = null,
+            args = ['--stdin-input'],
+            timeoutMs = 10000
+        } = options;
         return new Promise((resolve) => {
-            const child = spawn('node', ['-e', `process.stdin.resume();
-                 process.stdin.on('data', (data) => { process.stdout.write('RECEIVED: ' + data.toString().length + '\n'); });
-                 process.stdin.on('end', () => { process.stdout.write('STDIN_ENDED\n'); process.exit(0); });
-                 process.stdin.destroy();`], { timeout: 10000 });
-
             let stdoutData = '';
+            const child = command
+                ? spawn(command, args, { timeout: timeoutMs })
+                : spawn('node', ['-e', `process.stdin.resume();
+                     process.stdin.on('data', (data) => { process.stdout.write('RECEIVED: ' + data.length + '\n'); });
+                     process.stdin.on('end', () => { process.stdout.write('STDIN_ENDED\n'); process.exit(0); });
+                     process.stdin.destroy();`], { timeout: timeoutMs });
+
             child.stdout.on('data', (data) => { stdoutData += data.toString(); });
 
+            if (command) {
+                try { child.stdin.end(); } catch (_) {}
+            }
+
             child.on('close', (code) => {
-                resolve({
-                    code,
-                    eofInjected: true,
-                    stdout: stdoutData
-                });
+                resolve({ code, eofInjected: true, stdout: stdoutData });
             });
             child.on('error', (err) => {
-                resolve({ code: -1, error: err.message, stdout: stdoutData });
+                resolve({ code: -1, error: err.message, eofInjected: true, stdout: stdoutData });
             });
         });
     }
 
+    /**
+     * Throttle/delay reading of the target CLI's stdout to test for blocked IO.
+     */
     static async throttleStdout(options = {}) {
-        const { holdTime = 500, writeData = 'B'.repeat(100) } = options;
+        const {
+            command = null,
+            args = ['--help'],
+            holdTime = 500,
+            writeData = 'B'.repeat(100),
+            timeoutMs = 10000
+        } = options;
         return new Promise((resolve) => {
             let receivedData = '';
             let resolved = false;
-            const child = spawn('node', ['-e', `const fs = require('fs');
-                 const data = Buffer.from('${writeData}', 'utf8');
-                 process.stdout.write(data, 'utf8', () => {
-                     setTimeout(() => { process.exit(0); }, ${holdTime});
-                 });`], { timeout: 10000 });
 
-            child.stdout.on('data', (data) => { receivedData += data.toString(); });
+            const child = command
+                ? spawn(command, args, { timeout: timeoutMs })
+                : spawn('node', ['-e', `const data = Buffer.from('${writeData}', 'utf8');
+                     process.stdout.write(data, 'utf8', () => {
+                         setTimeout(() => { process.exit(0); }, ${holdTime});
+                     });`], { timeout: timeoutMs });
 
+            // Deliberately do NOT drain stdout for holdTime ms -> pipe buffers up,
+            // which is exactly the blocked/buffered IO condition we test for.
             setTimeout(() => {
-                child.kill('SIGTERM');
-                resolved = true;
-                resolve({
-                    code: 0,
-                    heldTime: holdTime,
-                    stdout: receivedData,
-                    throttle: true
-                });
-            }, holdTime + 1000);
+                if (child.stdout) {
+                    child.stdout.on('data', (data) => { receivedData += data.toString(); });
+                }
+            }, holdTime);
 
             child.on('close', (code) => {
                 if (!resolved) {
                     resolved = true;
-                    resolve({
-                        code,
-                        heldTime: holdTime,
-                        stdout: receivedData,
-                        throttle: true
-                    });
+                    resolve({ code, heldTime: holdTime, stdout: receivedData, throttle: true });
                 }
             });
             child.on('error', (err) => {
-                resolve({ code: -1, error: err.message, stdout: receivedData });
+                if (!resolved) {
+                    resolved = true;
+                    resolve({ code: -1, error: err.message, stdout: receivedData, throttle: true });
+                }
             });
+            setTimeout(() => {
+                if (!resolved) {
+                    resolved = true;
+                    try { child.kill('SIGTERM'); } catch (_) {}
+                    resolve({ code: -1, heldTime: holdTime, stdout: receivedData, throttle: true, timedOut: true });
+                }
+            }, holdTime + timeoutMs);
         });
     }
 
+    /**
+     * Throttle/delay reading of the target CLI's stderr to test for blocked IO.
+     */
     static async throttleStderr(options = {}) {
-        const { holdTime = 500, writeData = 'C'.repeat(100) } = options;
+        const {
+            command = null,
+            args = ['--invalid-arg-tail'],
+            holdTime = 500,
+            writeData = 'C'.repeat(100),
+            timeoutMs = 10000
+        } = options;
         return new Promise((resolve) => {
             let stderrData = '';
             let resolved = false;
-            const child = spawn('node', ['-e', `const fs = require('fs');
-                 const data = Buffer.from('${writeData}', 'utf8');
-                 process.stderr.write(data, 'utf8', () => {
-                     setTimeout(() => { process.exit(0); }, ${holdTime});
-                 });`], { timeout: 10000 });
 
-            child.stderr.on('data', (data) => { stderrData += data.toString(); });
+            const child = command
+                ? spawn(command, args, { timeout: timeoutMs })
+                : spawn('node', ['-e', `const data = Buffer.from('${writeData}', 'utf8');
+                     process.stderr.write(data, 'utf8', () => {
+                         setTimeout(() => { process.exit(0); }, ${holdTime});
+                     });`], { timeout: timeoutMs });
 
             setTimeout(() => {
-                child.kill('SIGTERM');
-                resolved = true;
-                resolve({
-                    code: 0,
-                    heldTime: holdTime,
-                    stderr: stderrData,
-                    throttle: true
-                });
-            }, holdTime + 1000);
+                if (child.stderr) {
+                    child.stderr.on('data', (data) => { stderrData += data.toString(); });
+                }
+            }, holdTime);
 
             child.on('close', (code) => {
                 if (!resolved) {
                     resolved = true;
-                    resolve({
-                        code,
-                        heldTime: holdTime,
-                        stderr: stderrData,
-                        throttle: true
-                    });
+                    resolve({ code, heldTime: holdTime, stderr: stderrData, throttle: true });
                 }
             });
             child.on('error', (err) => {
-                resolve({ code: -1, error: err.message, stderr: stderrData });
+                if (!resolved) {
+                    resolved = true;
+                    resolve({ code: -1, error: err.message, stderr: stderrData, throttle: true });
+                }
             });
+            setTimeout(() => {
+                if (!resolved) {
+                    resolved = true;
+                    try { child.kill('SIGTERM'); } catch (_) {}
+                    resolve({ code: -1, heldTime: holdTime, stderr: stderrData, throttle: true, timedOut: true });
+                }
+            }, holdTime + timeoutMs);
         });
     }
 }

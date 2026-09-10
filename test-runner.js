@@ -458,50 +458,50 @@ class ChaosTestRunner {
         };
     }
     async testFaultStdinBreak() {
-        const result = await FaultInjector.injectStdIOBreak({ pipeDuration: 50 });
+        const result = await FaultInjector.injectStdIOBreak({ command: this.command, pipeDuration: 50 });
         return {
             name: 'testFaultStdinBreak',
-            passed: result.sigpipe,
-            output: `Pipe break (SIGPIPE): ${result.sigpipe}, code: ${result.code}`,
+            passed: result.pipeBroken === true,
+            output: `Pipe break (SIGPIPE): ${result.pipeBroken}, code: ${result.code}, stdout: ${result.stdout.length} chars`,
             error: null
         };
     }
 
     async testFaultStdinRandomBytes() {
-        const result = await FaultInjector.injectStdinRandomBytes({ dataLength: 20, eofChance: 1.0 });
+        const result = await FaultInjector.injectStdinRandomBytes({ command: this.command, dataLength: 20, eofChance: 1.0 });
         return {
             name: 'testFaultStdinRandomBytes',
-            passed: result.injectedEof,
-            output: `Random bytes injected: ${result.injectedBytes} bytes, EOF: ${result.injectedEof}`,
+            passed: result.injectedEof && result.code !== -1,
+            output: `Random bytes injected: ${result.injectedBytes} bytes, EOF: ${result.injectedEof}, code: ${result.code}`,
             error: null
         };
     }
 
     async testFaultStdinEOF() {
-        const result = await FaultInjector.injectStdinEOF();
+        const result = await FaultInjector.injectStdinEOF({ command: this.command });
         return {
             name: 'testFaultStdinEOF',
-            passed: result.eofInjected,
+            passed: result.eofInjected && result.code !== -1,
             output: `EOF injected: ${result.eofInjected}, code: ${result.code}`,
             error: null
         };
     }
 
     async testFaultStdoutThrottle() {
-        const result = await FaultInjector.throttleStdout({ holdTime: 200 });
+        const result = await FaultInjector.throttleStdout({ command: this.command, holdTime: 200 });
         return {
             name: 'testFaultStdoutThrottle',
-            passed: result.throttle,
+            passed: result.throttle && result.code !== -1,
             output: `Stdout throttled for ${result.heldTime}ms, received ${result.stdout.length} chars`,
             error: null
         };
     }
 
     async testFaultStderrThrottle() {
-        const result = await FaultInjector.throttleStderr({ holdTime: 200 });
+        const result = await FaultInjector.throttleStderr({ command: this.command, holdTime: 200 });
         return {
             name: 'testFaultStderrThrottle',
-            passed: result.throttle,
+            passed: result.throttle && result.code !== -1,
             output: `Stderr throttled for ${result.heldTime}ms, received ${result.stderr.length} chars`,
             error: null
         };
