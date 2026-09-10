@@ -8,6 +8,7 @@
 const { spawn } = require('child_process');
 const fs = require('fs');
 const path = require('path');
+const FaultInjector = require('./fault-injection');
 
 class ChaosTestRunner {
     constructor(configPath) {
@@ -391,6 +392,68 @@ class ChaosTestRunner {
             name: 'testSlowLoris',
             passed: result.received,
             output: result.received ? 'Responsive' : 'Unresponsive',
+            error: null
+        };
+    }
+
+    // ---- FAULT INJECTION TESTS ----
+
+    async testFaultLatency() {
+        const result = await FaultInjector.injectLatency(500);
+        return {
+            name: 'testFaultLatency',
+            passed: result.injected && result.code === 0,
+            output: `Latency: ${result.elapsed}ms (target: 500ms)`,
+            error: result.error || null
+        };
+    }
+
+    async testFaultDNSFailure() {
+        const result = await FaultInjector.simulateDNSFailure();
+        return {
+            name: 'testFaultDNSFailure',
+            passed: result.failed,
+            output: `DNS resolution failed as expected: ${result.errorCode}`,
+            error: null
+        };
+    }
+
+    async testFaultDNSFailureViaProcess() {
+        const result = await FaultInjector.simulateDNSFailureViaProcess();
+        return {
+            name: 'testFaultDNSFailureViaProcess',
+            passed: result.failed,
+            output: `Process DNS failure: code=${result.code}, elapsed=${result.elapsed}ms`,
+            error: null
+        };
+    }
+
+    async testFaultDiskPressure() {
+        const result = await FaultInjector.simulateDiskPressure({ bytes: 1024 * 1024 });
+        return {
+            name: 'testFaultDiskPressure',
+            passed: result.success && result.writtenBytes > 0,
+            output: `Wrote ${result.writtenBytes} bytes (requested: ${result.requestedBytes})`,
+            error: null
+        };
+    }
+
+    async testFaultOOMKill() {
+        const result = await FaultInjector.simulateOOMKill({ allocateMB: 32, timeoutMs: 5000 });
+        return {
+            name: 'testFaultOOMKill',
+            passed: result.killed,
+            output: `Process killed: ${result.killed}, code: ${result.code}`,
+            error: null
+        };
+    }
+
+    async testFaultProcessKill() {
+        const result = await FaultInjector.simulateProcessKill('SIGKILL', 3000);
+        return {
+            name: 'testFaultProcessKill',
+            passed: result.killed,
+            output: `Process killed with ${result.signal}, code: ${result.code}`,
             error: null
         };
     }
