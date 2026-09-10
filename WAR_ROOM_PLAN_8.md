@@ -1,0 +1,6 @@
+- [ ] Create `chaos-runner.js` mapping `--help`, `--version`, `run`, and fallback to tests.
+- [ ] Make `chaos-runner.js` executable (`chmod +x`).
+- [ ] Update `package.json` to include `"bin"` field mapping `"nebula"` and `"nebula-chaos"` to `"chaos-runner.js"`.
+- [ ] Update `package.json` scripts to use `nebula` instead of `node test-runner.js`.
+- [ ] Run `npm install` / `npm link` to verify `nebula` command works.
+- [ ] Run `npm test` to ensure it integrates correctly.
