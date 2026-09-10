@@ -23,16 +23,30 @@ A **programmatic chaos engineering framework** for CLI applications:
 
 ## 🏗️ Architecture
 
+**No root required.** All fault injection runs entirely in user space using standard POSIX and Node.js mechanisms — no eBPF, no kernel modules, no `sudo`, no `tc netem`.
+
 ```
-┌──────────────────────────────────────────────────────────────┐
-│                    Chaos Controller                          │
-├─────────────────┬─────────────────┬──────────────────────────┤
-│  Fault          │  Observer       │  Reporter                │
-│  Injector       │  (metrics/      │  (HTML/JSON/             │
-│  (network,      │   logs/traces)  │   Prometheus)            │
-│   disk, CPU)    │                 │                          │
-└─────────────────┴─────────────────┴──────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          nebula-chaos CLI                                   │
+├─────────────────┬──────────────────────────┬────────────────────────────────┤
+│  Fault          │  Process Spawning        │  Filesystem Interception       │
+│  Injector       │  (child_process.spawn)   │  (LD_PRELOAD / fs_injector.so) │
+│  (latency,      │  controlled env, stdin,  │  intercepts open(), write()    │
+│   DNS, OOM,     │  timeout, signals        │  returns EACCES / ENOSPC       │
+│   disk, kill)   │                          │                                │
+└─────────────────┴──────────────────────────┴────────────────────────────────┘
 ```
+
+**How it works:**
+
+| Mechanism | What It Intercepts | Root Required? |
+|---|---|---|
+| `child_process` spawning | Network latency, DNS, process lifecycle | No |
+| `LD_PRELOAD` / `DYLD_INSERT_LIBRARIES` | Filesystem syscalls (`open`, `write`) | No |
+| Environment variable pass-through | Injection configuration | No |
+| DNS poison via `.invalid` TLD | DNS resolution | No |
+
+> **For the full architectural breakdown** — cross-platform details, the `LD_PRELOAD` mechanism explained, security considerations, and component diagrams — see [`specs/ARCHITECTURE.md`](specs/ARCHITECTURE.md).
 
 ## 🚀 Quick Start
 
