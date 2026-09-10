@@ -47,9 +47,17 @@ class ChaosTestRunner {
             let stderr = '';
 
             if (options.stdinData !== undefined) {
-                proc.stdin.write(options.stdinData);
+                try {
+                    proc.stdin.write(options.stdinData);
+                } catch (e) {
+                    // stdin already closed (process exited early)
+                }
             }
-            proc.stdin.end();
+            try {
+                proc.stdin.end();
+            } catch (e) {
+                // stdin already closed
+            }
 
             proc.stdout.on('data', (data) => {
                 stdout += data.toString();
