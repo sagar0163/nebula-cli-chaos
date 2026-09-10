@@ -1,5 +1,5 @@
 - [x] Create C source code for LD_PRELOAD injector (`injector.c`) overriding file operations to simulate EACCES and ENOSPC.
 - [x] Compile the injector into a shared object (`injector.so`).
-- [ ] Create a Node.js wrapper to invoke a target command with the injector via `LD_PRELOAD` and appropriate environment variables.
-- [ ] Create a dummy CLI application for testing.
-- [ ] Write unit tests to validate the injector works as expected.
+- [x] Create a Node.js wrapper to invoke a target command with the injector via `LD_PRELOAD` and appropriate environment variables.
+- [x] Create a dummy CLI application for testing.
+- [x] Write unit tests to validate the injector works as expected.
