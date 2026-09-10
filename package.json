@@ -13,7 +13,8 @@
     "test:memory": "nebula --category=memory",
     "test:concurrency": "nebula --category=concurrency",
     "test:fuzz": "nebula --category=fuzz",
-    "test:stress": "nebula --category=stress"
+    "test:stress": "nebula --category=stress",
+    "test:fault-injection": "nebula --category=fault-injection"
   },
   "keywords": ["chaos", "testing", "cli", "nebula"],
   "author": "Sagar",

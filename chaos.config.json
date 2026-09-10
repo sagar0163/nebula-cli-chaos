@@ -40,6 +40,14 @@
       "testResourceExhaustion",
       "testForkBomb"
     ],
+    "fault-injection": [
+      "testFaultLatency",
+      "testFaultDNSFailure",
+      "testFaultDNSFailureViaProcess",
+      "testFaultDiskPressure",
+      "testFaultOOMKill",
+      "testFaultProcessKill"
+    ],
     "all": [
       "testHelpCommand",
       "testInvalidArgs",
@@ -59,7 +67,13 @@
       "testForkBomb",
       "testAtomicBomb",
       "testResourceExhaustion",
-      "testSlowLoris"
+      "testSlowLoris",
+      "testFaultLatency",
+      "testFaultDNSFailure",
+      "testFaultDNSFailureViaProcess",
+      "testFaultDiskPressure",
+      "testFaultOOMKill",
+      "testFaultProcessKill"
     ]
   },
   "tests": {
@@ -81,6 +95,12 @@
     "testForkBomb": { "category": "concurrency", "timeout": 10000 },
     "testAtomicBomb": { "category": "fuzz", "timeout": 10000 },
     "testResourceExhaustion": { "category": "stress", "timeout": 15000 },
-    "testSlowLoris": { "category": "network", "timeout": 10000 }
+    "testSlowLoris": { "category": "network", "timeout": 10000 },
+    "testFaultLatency": { "category": "fault-injection", "timeout": 10000 },
+    "testFaultDNSFailure": { "category": "fault-injection", "timeout": 10000 },
+    "testFaultDNSFailureViaProcess": { "category": "fault-injection", "timeout": 10000 },
+    "testFaultDiskPressure": { "category": "fault-injection", "timeout": 30000 },
+    "testFaultOOMKill": { "category": "fault-injection", "timeout": 15000 },
+    "testFaultProcessKill": { "category": "fault-injection", "timeout": 10000 }
   }
 }
