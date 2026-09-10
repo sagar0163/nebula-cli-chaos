@@ -122,7 +122,7 @@ experiment:
   faults:
     - type: "pipe-break"
       pipeDuration: 100        # ms before pipe is destroyed
-      writeData: "A".repeat(100) # data to write before break
+      writeData: "AAAAAAAAAA"   # data to write before break
   assertions:
     - "exit_code == 141"        # SIGPIPE exit code
 ```
@@ -160,7 +160,7 @@ experiment:
   faults:
     - type: "stdout-throttle"
       holdTime: 500             # ms to hold stdout buffer
-      writeData: "B".repeat(100)
+      writeData: "BBBBBBBBBB"
   assertions:
     - "hang_detected == false"
     - "exit_code == 0"
@@ -174,7 +174,7 @@ experiment:
   faults:
     - type: "stderr-throttle"
       holdTime: 500
-      writeData: "C".repeat(100)
+      writeData: "CCCCCCCCCC"
   assertions:
     - "exit_code == 0"
 ```
