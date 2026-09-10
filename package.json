@@ -3,13 +3,17 @@
   "version": "2.0.0",
   "description": "Chaos testing framework for CLI applications",
   "main": "test-runner.js",
+  "bin": {
+    "nebula": "chaos-runner.js",
+    "nebula-chaos": "chaos-runner.js"
+  },
   "scripts": {
-    "test": "node test-runner.js",
-    "test:network": "node test-runner.js --category=network",
-    "test:memory": "node test-runner.js --category=memory",
-    "test:concurrency": "node test-runner.js --category=concurrency",
-    "test:fuzz": "node test-runner.js --category=fuzz",
-    "test:stress": "node test-runner.js --category=stress"
+    "test": "nebula",
+    "test:network": "nebula --category=network",
+    "test:memory": "nebula --category=memory",
+    "test:concurrency": "nebula --category=concurrency",
+    "test:fuzz": "nebula --category=fuzz",
+    "test:stress": "nebula --category=stress"
   },
   "keywords": ["chaos", "testing", "cli", "nebula"],
   "author": "Sagar",
