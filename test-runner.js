@@ -14,6 +14,7 @@ class ChaosTestRunner {
     constructor(configPath) {
         this.config = this.loadConfig(configPath);
         this.command = this.config.command;
+        this.commandArgs = [];
         this.defaultTimeout = this.config.defaultTimeout || 10000;
         this.results = [];
         this.startTime = null;
@@ -38,7 +39,8 @@ class ChaosTestRunner {
 
         return new Promise((resolve) => {
             const startTime = Date.now();
-            const proc = spawn(this.command, args, {
+            const allArgs = [...(this.commandArgs || []), ...args];
+            const proc = spawn(this.command, allArgs, {
                 env,
                 timeout,
                 shell: false

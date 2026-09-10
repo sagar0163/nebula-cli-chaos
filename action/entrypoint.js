@@ -267,7 +267,8 @@ async function main() {
 
   const ChaosTestRunner = require('../test-runner');
   const runner = new ChaosTestRunner(tempConfigPath);
-  runner.command = command;
+  runner.command = command.split(/\s+/)[0];
+  runner.commandArgs = command.split(/\s+/).slice(1);
 
   const report = await runner.runAll('all');
   report.profile = profile;

@@ -137,6 +137,44 @@ jobs:
       - run: npx nebula-chaos run experiments/*.yaml --ci
 ```
 
+## 🚀 GitHub Action (Zero-Config)
+
+Use the official GitHub Action for instant chaos testing in your CI pipeline:
+
+```yaml
+# .github/workflows/chaos.yml
+name: Chaos Testing
+on: [push, pull_request]
+
+jobs:
+  chaos:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: sagar0163/nebula-cli-chaos/action@main
+        with:
+          command: 'node my-cli.js'
+          profile: 'standard'
+```
+
+### Available Profiles
+
+| Profile | Description |
+|---------|-------------|
+| `standard` | All basic tests (help, args, concurrency, memory, fuzz) |
+| `offline` | Network resilience (latency, DNS failure, slowloris) |
+| `disk-pressure` | Filesystem resilience (disk full, large inputs) |
+| `flaky-env` | Unreliable environment (OOM, process signals, zombies) |
+
+### Features
+
+- **Zero Configuration** - Just specify your command and profile
+- **Cross-Platform** - Works on Ubuntu, macOS, and Windows
+- **Rich Reports** - Markdown reports in GitHub Actions Summary and PR comments
+- **No Root Required** - Uses only Node.js
+
+See [action/README.md](action/README.md) for full documentation and [examples/chaos-action.yml](examples/chaos-action.yml) for complete workflow examples.
+
 ## 📄 License
 
 MIT License

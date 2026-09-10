@@ -12,7 +12,7 @@
 - [ ] Create action README with usage documentation
 - [ ] Create example workflow file for users
 - [ ] Test the action locally/verify it works
-- [ ] Update main README.md with GitHub Action section
+- [x] Update main README.md with GitHub Action section
 - [ ] Clean up and make final commit
 
 ### Design Notes
