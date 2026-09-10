@@ -164,6 +164,29 @@ if (flag === '--query' || flag === '--search') {
   process.exit(0);
 }
 
-// Unknown flag: exit 1
-console.error('Error: Unknown flag: ' + flag);
-process.exit(1);
+// Handle --stdin-input: read all data from stdin, validate it
+if (flag === '--stdin-input') {
+  let stdinData = '';
+  process.stdin.setEncoding('utf8');
+  process.stdin.on('data', (chunk) => { stdinData += chunk; });
+  process.stdin.on('end', () => {
+    if (!validateInput(stdinData)) {
+      console.error('Error: Invalid or unsafe stdin input detected');
+      process.exit(1);
+    }
+    if (hasNullBytes(stdinData)) {
+      console.error('Error: Stdin input contains null bytes');
+      process.exit(1);
+    }
+    if (stdinData.length > 10000) {
+      console.error('Error: Stdin input exceeds maximum length of 10000 characters');
+      process.exit(1);
+    }
+    console.log('OK: ' + stdinData.length + ' chars from stdin');
+    process.exit(0);
+  });
+} else {
+  // Unknown flag: exit 1
+  console.error('Error: Unknown flag: ' + flag);
+  process.exit(1);
+}
