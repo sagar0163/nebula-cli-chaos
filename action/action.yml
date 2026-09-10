@@ -1,0 +1,43 @@
+name: 'Nebula CLI Chaos Testing'
+description: 'Zero-config chaos testing for CLI applications - fault injection, resilience validation, automated recovery'
+author: 'Sagar'
+
+inputs:
+  command:
+    description: 'Target CLI command to chaos-test (e.g., "node my-cli.js", "python my-script.py")'
+    required: true
+  profile:
+    description: 'Chaos profile: offline, disk-pressure, flaky-env, standard, or all'
+    required: false
+    default: 'standard'
+  config-path:
+    description: 'Path to custom chaos.config.json (overrides profile)'
+    required: false
+    default: ''
+  timeout:
+    description: 'Default timeout for each test in milliseconds'
+    required: false
+    default: '10000'
+  fail-on-failure:
+    description: 'Fail the action if any chaos test fails'
+    required: false
+    default: 'true'
+  post-comment:
+    description: 'Post results as PR comment (only on pull_request events)'
+    required: false
+    default: 'true'
+
+outputs:
+  report-json:
+    description: 'Path to the JSON report file'
+    value: ${{ steps.chaos.outputs.report-json }}
+  summary:
+    description: 'Test summary (passed/failed/total)'
+    value: ${{ steps.chaos.outputs.summary }}
+  exit-code:
+    description: 'Exit code from chaos tests (0 = pass, 1 = fail)'
+    value: ${{ steps.chaos.outputs.exit-code }}
+
+runs:
+  using: 'node20'
+  main: 'entrypoint.js'
