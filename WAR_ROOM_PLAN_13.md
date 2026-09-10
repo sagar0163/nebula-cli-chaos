@@ -1,0 +1,5 @@
+- [ ] Implement EnvVar config corruption logic (unset, truncate, inject invalid characters).
+- [ ] Implement Config File corruption logic (backup file, write corrupted, restore in try/finally and process exit).
+- [ ] Add tests to verify EnvVar corruption works and doesn't affect runner env.
+- [ ] Add tests to verify Config File corruption works and restores original on crash.
+- [ ] Integrate into `fault-injection.js` or separate module and make sure tests pass.

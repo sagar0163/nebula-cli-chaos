@@ -46,7 +46,11 @@
       "testFaultDNSFailureViaProcess",
       "testFaultDiskPressure",
       "testFaultOOMKill",
-      "testFaultProcessKill"
+      "testFaultProcessKill",
+      "testFaultEnvVarUnset",
+      "testFaultEnvVarInvalidChars",
+      "testFaultConfigFileMalform",
+      "testFaultConfigFileChangeType"
     ],
     "all": [
       "testHelpCommand",
@@ -73,7 +77,11 @@
       "testFaultDNSFailureViaProcess",
       "testFaultDiskPressure",
       "testFaultOOMKill",
-      "testFaultProcessKill"
+      "testFaultProcessKill",
+      "testFaultEnvVarUnset",
+      "testFaultEnvVarInvalidChars",
+      "testFaultConfigFileMalform",
+      "testFaultConfigFileChangeType"
     ]
   },
   "tests": {
@@ -101,6 +109,10 @@
     "testFaultDNSFailureViaProcess": { "category": "fault-injection", "timeout": 10000 },
     "testFaultDiskPressure": { "category": "fault-injection", "timeout": 30000 },
     "testFaultOOMKill": { "category": "fault-injection", "timeout": 15000 },
-    "testFaultProcessKill": { "category": "fault-injection", "timeout": 10000 }
+    "testFaultProcessKill": { "category": "fault-injection", "timeout": 10000 },
+    "testFaultEnvVarUnset": { "category": "fault-injection", "timeout": 10000 },
+    "testFaultEnvVarInvalidChars": { "category": "fault-injection", "timeout": 10000 },
+    "testFaultConfigFileMalform": { "category": "fault-injection", "timeout": 10000 },
+    "testFaultConfigFileChangeType": { "category": "fault-injection", "timeout": 10000 }
   }
 }
