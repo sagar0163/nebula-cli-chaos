@@ -8,6 +8,7 @@
     "nebula-chaos": "chaos-runner.js"
   },
   "scripts": {
+    "build": "node --check chaos-runner.js && node --check test-runner.js && node --check fault-injection.js",
     "test": "node chaos-runner.js",
     "test:network": "node chaos-runner.js --category=network",
     "test:memory": "node chaos-runner.js --category=memory",
@@ -17,6 +18,15 @@
     "test:fault-injection": "node chaos-runner.js --category=fault-injection"
   },
   "keywords": ["chaos", "testing", "cli", "nebula"],
+  "files": [
+    "chaos-runner.js",
+    "test-runner.js",
+    "fault-injection.js",
+    "chaos.config.json",
+    "fixtures/",
+    "README.md",
+    "LICENSE"
+  ],
   "author": "Sagar",
   "license": "MIT"
 }

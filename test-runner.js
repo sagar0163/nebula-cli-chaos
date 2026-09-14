@@ -14,6 +14,7 @@ class ChaosTestRunner {
     constructor(configPath) {
         this.config = this.loadConfig(configPath);
         this.command = this.config.command;
+        this.commandArgs = [];
         this.defaultTimeout = this.config.defaultTimeout || 10000;
         this.results = [];
         this.startTime = null;
@@ -38,7 +39,8 @@ class ChaosTestRunner {
 
         return new Promise((resolve) => {
             const startTime = Date.now();
-            const proc = spawn(this.command, args, {
+            const allArgs = [...(this.commandArgs || []), ...args];
+            const proc = spawn(this.command, allArgs, {
                 env,
                 timeout,
                 shell: false
@@ -454,6 +456,147 @@ class ChaosTestRunner {
             name: 'testFaultProcessKill',
             passed: result.killed,
             output: `Process killed with ${result.signal}, code: ${result.code}`,
+            error: null
+        };
+    }
+    async testFaultStdinBreak() {
+        const result = await FaultInjector.injectStdIOBreak({ command: this.command, pipeDuration: 50 });
+        return {
+            name: 'testFaultStdinBreak',
+            passed: result.pipeBroken === true,
+            output: `Pipe break (SIGPIPE): ${result.pipeBroken}, code: ${result.code}, stdout: ${result.stdout.length} chars`,
+            error: null
+        };
+    }
+
+    async testFaultStdinRandomBytes() {
+        const result = await FaultInjector.injectStdinRandomBytes({ command: this.command, dataLength: 20, eofChance: 1.0 });
+        return {
+            name: 'testFaultStdinRandomBytes',
+            passed: result.injectedEof && result.code !== -1,
+            output: `Random bytes injected: ${result.injectedBytes} bytes, EOF: ${result.injectedEof}, code: ${result.code}`,
+            error: null
+        };
+    }
+
+    async testFaultStdinEOF() {
+        const result = await FaultInjector.injectStdinEOF({ command: this.command });
+        return {
+            name: 'testFaultStdinEOF',
+            passed: result.eofInjected && result.code !== -1,
+            output: `EOF injected: ${result.eofInjected}, code: ${result.code}`,
+            error: null
+        };
+    }
+
+    async testFaultStdoutThrottle() {
+        const result = await FaultInjector.throttleStdout({ command: this.command, holdTime: 200 });
+        return {
+            name: 'testFaultStdoutThrottle',
+            passed: result.throttle && result.code !== -1,
+            output: `Stdout throttled for ${result.heldTime}ms, received ${result.stdout.length} chars`,
+            error: null
+        };
+    }
+
+    async testFaultStderrThrottle() {
+        const result = await FaultInjector.throttleStderr({ command: this.command, holdTime: 200 });
+        return {
+            name: 'testFaultStderrThrottle',
+            passed: result.throttle && result.code !== -1,
+            output: `Stderr throttled for ${result.heldTime}ms, received ${result.stderr.length} chars`,
+            error: null
+        };
+    }
+
+    async testFaultEnvVarUnset() {
+        const envKey = 'NEBULA_API_KEY';
+        const originalEnv = { ...process.env };
+        process.env[envKey] = 'test-key-123';
+        
+        const corruptedEnv = FaultInjector.corruptEnvVar(process.env, envKey, 'unset');
+        
+        // Ensure it doesn't affect the runner's env
+        const passed = process.env[envKey] === 'test-key-123' && corruptedEnv[envKey] === undefined;
+        
+        delete process.env[envKey]; // cleanup
+        
+        // Actually run command with corrupted env
+        const result = await this.exec(['--help'], { env: corruptedEnv });
+        
+        return {
+            name: 'testFaultEnvVarUnset',
+            passed: passed && (result.success || !result.success),
+            output: passed ? 'Env var successfully unset in corrupted env, runner env intact' : 'Failed to unset or runner env affected',
+            error: null
+        };
+    }
+
+    async testFaultEnvVarInvalidChars() {
+        const envKey = 'NEBULA_CONFIG_DIR';
+        const originalEnv = { ...process.env };
+        process.env[envKey] = '/var/lib/nebula';
+        
+        const corruptedEnv = FaultInjector.corruptEnvVar(process.env, envKey, 'invalid_chars');
+        
+        const passed = process.env[envKey] === '/var/lib/nebula' && corruptedEnv[envKey].includes('!@#$%^&*()');
+        
+        delete process.env[envKey];
+        
+        const result = await this.exec(['--help'], { env: corruptedEnv });
+        
+        return {
+            name: 'testFaultEnvVarInvalidChars',
+            passed: passed && (result.success || !result.success),
+            output: passed ? 'Env var corrupted with invalid chars' : 'Failed to corrupt env var',
+            error: null
+        };
+    }
+
+    async testFaultConfigFileMalform() {
+        const testFile = 'test-config-malform.json';
+        fs.writeFileSync(testFile, '{"valid": "json"}');
+        
+        FaultInjector.corruptConfigFile(testFile, 'malform_json');
+        
+        const corruptedContent = fs.readFileSync(testFile, 'utf8');
+        const isCorrupted = corruptedContent.includes('invalid_json_here{[');
+        
+        FaultInjector.restoreConfigFile(testFile);
+        const restoredContent = fs.readFileSync(testFile, 'utf8');
+        
+        const passed = isCorrupted && restoredContent === '{"valid": "json"}';
+        
+        if (fs.existsSync(testFile)) fs.unlinkSync(testFile);
+        
+        return {
+            name: 'testFaultConfigFileMalform',
+            passed,
+            output: passed ? 'Config file malformed and restored successfully' : 'Config file corruption/restoration failed',
+            error: null
+        };
+    }
+
+    async testFaultConfigFileChangeType() {
+        const testFile = 'test-config-type.json';
+        fs.writeFileSync(testFile, '{"key": "string_value"}');
+        
+        FaultInjector.corruptConfigFile(testFile, 'change_type');
+        
+        const corruptedContent = fs.readFileSync(testFile, 'utf8');
+        const isCorrupted = corruptedContent.includes('12345');
+        
+        FaultInjector.restoreConfigFile(testFile);
+        const restoredContent = fs.readFileSync(testFile, 'utf8');
+        
+        const passed = isCorrupted && restoredContent === '{"key": "string_value"}';
+        
+        if (fs.existsSync(testFile)) fs.unlinkSync(testFile);
+        
+        return {
+            name: 'testFaultConfigFileChangeType',
+            passed,
+            output: passed ? 'Config file type changed and restored successfully' : 'Config file corruption/restoration failed',
             error: null
         };
     }

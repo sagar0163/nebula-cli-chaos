@@ -12,6 +12,7 @@
 - Invalid input fuzzing
 - Timeout/hang detection
 - Resource exhaustion simulation
+- Standard stream (stdin/stdout/stderr) and pipe break fault injection
 
 ## Tech Stack
 - Node.js/TypeScript
