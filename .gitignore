@@ -1,0 +1,3 @@
+node_modules/
+chaos-report-*.json
+*.tmp
