@@ -13,5 +13,6 @@ This plan tracks the remaining verification + cleanup before the branch is final
 - [x] Fix npm test scripts to run via `node chaos-runner.js` (no global `nebula` bin dependency)
 - [x] Remove stale generated `chaos-report-*.json` from git tracking and ignore report artifacts
 - [x] Verify `npm test` passes (25/25) and `node test-fs-injector.js` passes
-- [ ] Remove remaining stale scratch artifacts tracked by accident (`*_<ts>.txt`, `x`)
+- [x] Remove remaining stale scratch artifacts tracked by accident (`*_<ts>.txt`, `x`)
+- [ ] Re-run `npm test` + `node test-fs-injector.js` against the cleaned tree
 - [ ] Final commit deleting this plan file, then push branch
