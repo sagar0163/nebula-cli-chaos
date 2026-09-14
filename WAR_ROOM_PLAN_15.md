@@ -14,10 +14,11 @@
 - Ran out of time before finishing verification; plan file was deleted prematurely.
 
 ## Remaining Work (this run)
-- [ ] Fix `npm test`: `"test": "nebula"` fails with `nebula: not found` because npm does not
+- [x] Fix `npm test`: `"test": "nebula"` fails with `nebula: not found` because npm does not
       self-link the root package's bins into `node_modules/.bin`. Change scripts to `node chaos-runner.js`.
-- [ ] Run `npm test` to verify the suite passes (fault-injection + all categories)
-- [ ] Confirm docs accuracy against actual source (fs-injector-wrapper.js, fault-injection.js,
-      fs_injector.c, chaos-runner.js)
+      (commit 65d70e5)
+- [x] Run `npm test` to verify the suite passes — 25/25 passed; standalone `node test-fs-injector.js` 4/4 passed
+- [x] Confirm docs accuracy against actual source (fs-injector-wrapper.js, fault-injection.js,
+      fs_injector.c, chaos-runner.js) — all mechanisms/claims match
 - [ ] Delete WAR_ROOM_PLAN_15.md (scratch) and make final commit referencing #15
 - [ ] Push branch `war-room-issue-15` to origin
